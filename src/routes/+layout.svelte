@@ -3,11 +3,12 @@
 	let { children } = $props();
 </script>
 
-{@render children()}
+<div class="flex flex-col min-h-screen">
+	{@render children()}
 
-<!-- Settings Icon -->
-<div class="absolute bottom-4 right-4">
-	<a href="/settings">
-		<span class="text-2xl">⚙️</span>
-	</a>
+	<div class="absolute bottom-4 right-4">
+		<a href="/settings">
+			<span class="text-2xl">⚙️</span>
+		</a>
+	</div>
 </div>

@@ -41,11 +41,11 @@
 </script>
 
 {#if !submitting}
-  <div class="mb-4 h-4"></div>
-	<div
-		out:fade={{ duration: 100 }}
-		class="flex h-screen flex-col items-center justify-center"
-	>
+<div
+out:fade={{ duration: 100 }}
+class="flex h-screen flex-col items-center justify-center"
+>
+<div class="mb-4 h-4"></div>
 		<h1>it's just weather</h1>
 		<HomePostcodeInput bind:postcode onEnter={submit} onLocationPress={useCurrentLocation} />
 		<button
