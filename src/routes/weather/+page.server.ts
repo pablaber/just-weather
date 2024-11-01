@@ -1,9 +1,8 @@
 import { rollupTimeData, validateCoordinates } from '$lib/utils';
-import { weatherApi } from '$lib';
+import { weatherApi, cookieUtils } from '$lib';
 import { redirect } from '@sveltejs/kit';
 import { geocodingForPostCode, reverseGeocoding } from '$lib/mapbox-api.js';
-import type { TemperatureUnit } from '$lib/types';
-import { NO_CACHE } from '$env/static/private';
+import { NO_CACHE, JAIL_THRESHOLD } from '$env/static/private';
 
 export async function load({ url, cookies, setHeaders }) {
 	let latitude = url.searchParams.get('lat');
@@ -12,9 +11,15 @@ export async function load({ url, cookies, setHeaders }) {
 
 	const postcode = url.searchParams.get('postcode');
 
-	const temperatureUnitRaw = cookies.get('temperature_unit');
-	const temperatureUnit: TemperatureUnit =
-		temperatureUnitRaw === 'fahrenheit' ? 'fahrenheit' : 'celsius';
+	const cookieMonster = cookieUtils.create(cookies);
+	const jailCounter = cookieMonster.incrementJailCounter();
+	const jailThreshold = parseInt(JAIL_THRESHOLD) || 100;
+
+	if (jailCounter >= jailThreshold) {
+		throw redirect(302, '/jail');
+	}
+
+	const temperatureUnit = cookieMonster.getTemperatureUnit();
 
 	if (!postcode && (!latitude || !longitude)) {
 		throw redirect(302, '/');
