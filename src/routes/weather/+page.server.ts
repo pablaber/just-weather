@@ -1,8 +1,9 @@
-import { validateCoordinates } from '$lib/utils';
+import { rollupTimeData, validateCoordinates } from '$lib/utils';
 import { weatherApi } from '$lib';
 import { redirect } from '@sveltejs/kit';
 import { geocodingForPostCode, reverseGeocoding } from '$lib/mapbox-api.js';
 import type { TemperatureUnit } from '$lib/types';
+import { NO_CACHE } from '$env/static/private';
 
 export async function load({ url, cookies, setHeaders }) {
 	let latitude = url.searchParams.get('lat');
@@ -70,16 +71,36 @@ export async function load({ url, cookies, setHeaders }) {
 			'weather_code',
 			'is_day'
 		],
+		hourly: [
+			'temperature_2m',
+			'precipitation_probability',
+			'weather_code',
+			'is_day'
+		],
 		temperature_unit: temperatureUnit
 	});
 
 	// Cache for 1 minute
-	setHeaders({
-		'cache-control': 'max-age=60'
+	if (NO_CACHE !== 'true') {
+		setHeaders({
+			'cache-control': 'max-age=60'
+		});
+	}
+
+	const hourlyData = rollupTimeData(response.hourly?.time ?? [], {
+		temperature_2m: response.hourly?.temperature_2m ?? [],
+		precipitation_probability: response.hourly?.precipitation_probability ?? [],
+		weather_code: response.hourly?.weather_code ?? [],
+		is_day: response.hourly?.is_day ?? []
 	});
 
 	return {
-		forecast: response,
+		forecast: {
+			current: response.current,
+			current_units: response.current_units,
+			hourly: hourlyData,
+			hourly_units: response.hourly_units
+		},
 		location: {
 			name: locationName
 		}

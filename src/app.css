@@ -1,6 +1,8 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+@import './icons/styles/weather-icons.min.css';
+
 
 
 @layer base {
@@ -26,5 +28,33 @@
 
   h6 {
     @apply text-base font-bold mb-4;
+  }
+
+  .wi {
+    color: black;
+  }
+
+  .wi-sm {
+    font-size: 1rem;
+  }
+
+  .wi-md {
+    font-size: 1.5rem;
+  }
+
+  .wi-lg {
+    font-size: 2rem;
+  }
+
+  .wi-xl {
+    font-size: 3rem;
+  }
+
+  .wi-2xl {
+    font-size: 4rem;
+  }
+
+  .wi-3xl {
+    font-size: 6rem;
   }
 }
