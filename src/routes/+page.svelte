@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
 	import HomePostcodeInput from '$lib/components/HomePostcodeInput.svelte';
+	import { minutesToMilliseconds, secondsToMilliseconds } from 'date-fns';
 
 	const LOADING_EMOJIS = ['☂️', '🕶️', '🌪️', '🌋', '🌈', '⚡'];
 	const randomLoadingEmoji = $derived(
@@ -9,29 +10,52 @@
 	);
 
 	let postcode = $state('');
-	let latitude = $state(0);
-	let longitude = $state(0);
 	let submitting = $state(false);
 	let error = $state('');
 
-	function useCurrentLocation() {
+	async function useCurrentLocation() {
 		submitting = true;
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
-				latitude = position.coords.latitude;
-				longitude = position.coords.longitude;
-				submit({ useCoordinates: true });
+				submit({
+					latitude: position.coords.latitude,
+					longitude: position.coords.longitude
+				});
 			},
 			(e) => {
-				error = e.message.toString();
+				if (e instanceof GeolocationPositionError) {
+					switch (e.code) {
+						case 1:
+							error = 'Location access was denied.';
+							break;
+						case 3:
+							error = 'Location access timed out.';
+							break;
+						default:
+							console.error('Unhandled GeolocationPositionError:', e);
+							error = 'There was an error fetching your location.';
+							break;
+					}
+				} else {
+					error = 'There was an error fetching your location.';
+					console.error('Unknown error fetching user location:', e);
+				}
 				submitting = false;
+			},
+			{
+				timeout: secondsToMilliseconds(10),
+				maximumAge: minutesToMilliseconds(5),
+				enableHighAccuracy: true
 			}
 		);
 	}
 
-	function submit(options?: { useCoordinates?: boolean }) {
-		const useCoordinates = options?.useCoordinates ?? false;
+	function submit(options?: { latitude: number; longitude: number }) {
 		submitting = true;
+
+		const { latitude, longitude } = options ?? {};
+		const useCoordinates = latitude !== undefined && longitude !== undefined;
+
 		if (useCoordinates) {
 			goto(`/weather?lat=${latitude}&lon=${longitude}`);
 		} else {
@@ -41,13 +65,17 @@
 </script>
 
 {#if !submitting}
-<div
-out:fade={{ duration: 100 }}
-class="flex h-screen flex-col items-center justify-center"
->
-<div class="mb-4 h-4"></div>
-		<h1>it's just weather</h1>
-		<HomePostcodeInput bind:postcode onEnter={submit} onLocationPress={useCurrentLocation} />
+	<div
+		out:fade={{ duration: 100 }}
+		class="flex h-screen flex-col items-center justify-center"
+	>
+		<div class="mb-4 h-4"></div>
+		<h1>just weather</h1>
+		<HomePostcodeInput
+			bind:postcode
+			onEnter={submit}
+			onLocationPress={useCurrentLocation}
+		/>
 		<button
 			disabled={submitting}
 			onclick={() => submit()}
