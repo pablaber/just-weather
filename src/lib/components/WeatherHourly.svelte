@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { HourlyDataPoint } from '$lib/types';
-	import { weatherCodeInformation } from '$lib/utils';
+	import { weatherUtils } from '$lib/utils';
 	import { format } from 'date-fns';
 
 	const {
@@ -21,7 +21,9 @@
 			})
 			.map((dataPoint) => {
 				const isDay = dataPoint.is_day === 1;
-				const weatherCodeInfo = weatherCodeInformation(dataPoint.weather_code);
+				const weatherCodeInfo = weatherUtils.weatherCodeInformation(
+					dataPoint.weather_code
+				);
 				const iconClass = isDay
 					? weatherCodeInfo.icon.day
 					: weatherCodeInfo.icon.night;

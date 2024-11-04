@@ -3,7 +3,11 @@
 		postcode = $bindable(),
 		onEnter,
 		onLocationPress
-	}: { postcode: string; onEnter: () => void; onLocationPress: () => void } = $props();
+	}: {
+		postcode: string;
+		onEnter: () => void;
+		onLocationPress: () => void;
+	} = $props();
 
 	function onkeypress(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
@@ -15,7 +19,7 @@
 <div class="flex flex-row items-center justify-between">
 	<div class="w-10">
 		<!-- Empty div to push the input to the left -->
-  </div>
+	</div>
 	<input
 		class="w-64 rounded border border-gray-300 py-1 text-center"
 		type="text"

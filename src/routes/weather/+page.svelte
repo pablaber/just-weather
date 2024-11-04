@@ -1,17 +1,29 @@
 <script lang="ts">
 	let { data } = $props();
 	import { fade } from 'svelte/transition';
-	import { weatherCodeInformation } from '$lib/utils';
+	import { weatherUtils } from '$lib/utils';
 	import { goto } from '$app/navigation';
 	import WeatherHourly from '$lib/components/WeatherHourly.svelte';
 
-	let currentTemperature = $derived(data.forecast?.current?.temperature_2m || 'ERROR');
-	let temperatureUnit = $derived(data.forecast?.current_units?.temperature_2m || 'ERROR');
-	let weatherCodeInfo = $derived(weatherCodeInformation(data.forecast?.current?.weather_code || 0));
+	let currentTemperature = $derived(
+		data.forecast?.current?.temperature_2m || 'ERROR'
+	);
+	let temperatureUnit = $derived(
+		data.forecast?.current_units?.temperature_2m || 'ERROR'
+	);
+	let weatherCodeInfo = $derived(
+		weatherUtils.weatherCodeInformation(
+			data.forecast?.current?.weather_code || 0
+		)
+	);
 	const isDay = $derived(data.forecast?.current?.is_day || false);
-	let weatherCodeClass = $derived(isDay ? weatherCodeInfo.icon.day : weatherCodeInfo.icon.night);
+	let weatherCodeClass = $derived(
+		isDay ? weatherCodeInfo.icon.day : weatherCodeInfo.icon.night
+	);
 
-	let currentTemperatureRounded = $derived(Math.round(Number(currentTemperature)));
+	let currentTemperatureRounded = $derived(
+		Math.round(Number(currentTemperature))
+	);
 </script>
 
 <div in:fade={{ duration: 400 }} class="flex flex-col">
@@ -29,5 +41,8 @@
 		<h4>{weatherCodeInfo.description}</h4>
 	</div>
 
-	<WeatherHourly hourlyData={data.forecast?.hourly} hourlyUnits={data.forecast?.hourly_units} />
+	<WeatherHourly
+		hourlyData={data.forecast?.hourly}
+		hourlyUnits={data.forecast?.hourly_units}
+	/>
 </div>

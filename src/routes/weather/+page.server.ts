@@ -1,10 +1,11 @@
-import { rollupTimeData, validateCoordinates } from '$lib/utils';
-import { weatherApi, cookieUtils } from '$lib';
+import { to } from 'await-to-js';
+import { logicUtils, cookieUtils } from '$lib/utils';
+import { weatherApi, mapboxApi } from '$lib/api';
 import { redirect } from '@sveltejs/kit';
-import { geocodingForPostCode, reverseGeocoding } from '$lib/mapbox-api.js';
-import { NO_CACHE, JAIL_THRESHOLD } from '$env/static/private';
+import { ENV } from '$lib/config';
 
-export async function load({ url, cookies, setHeaders }) {
+export async function load({ url, cookies, setHeaders, locals, fetch }) {
+	const { logger } = locals;
 	let latitude = url.searchParams.get('lat');
 	let longitude = url.searchParams.get('lon');
 	let locationName = '';
@@ -13,20 +14,35 @@ export async function load({ url, cookies, setHeaders }) {
 
 	const cookieMonster = cookieUtils.create(cookies);
 	const jailCounter = cookieMonster.incrementJailCounter();
-	const jailThreshold = parseInt(JAIL_THRESHOLD) || 100;
+	const jailThreshold = ENV.JAIL_THRESHOLD;
 
 	if (jailCounter >= jailThreshold) {
+		logger.info({ jailCounter, jailThreshold }, 'Jail counter exceeded');
 		throw redirect(302, '/jail');
 	}
 
 	const temperatureUnit = cookieMonster.getTemperatureUnit();
 
 	if (!postcode && (!latitude || !longitude)) {
+		logger.info('No coordinates or postcode provided');
 		throw redirect(302, '/');
 	}
 
+	const mapbox = mapboxApi.create(fetch);
+	const weather = weatherApi.create(fetch);
+
 	if (postcode) {
-		const geocodingResponse = await geocodingForPostCode(postcode);
+		const [error, geocodingResponse] = await to(
+			mapbox.geocodingForPostCode(postcode)
+		);
+		if (error) {
+			logger.error({ error }, 'Error geocoding postcode');
+			throw redirect(
+				302,
+				`/?error=${encodeURIComponent('Error geocoding postcode.')}`
+			);
+		}
+
 		const {
 			features: [firstFeature]
 		} = geocodingResponse;
@@ -36,75 +52,95 @@ export async function load({ url, cookies, setHeaders }) {
 				`/?error=${encodeURIComponent('Postcode not found')}`
 			);
 		}
+
 		latitude = firstFeature.properties.coordinates.latitude.toString();
 		longitude = firstFeature.properties.coordinates.longitude.toString();
 		locationName = firstFeature.properties.place_formatted;
 	}
 
 	if (!latitude || !longitude) {
+		logger.info('Invalid coordinates');
 		throw redirect(302, `/?error=${encodeURIComponent('Invalid coordinates')}`);
 	}
 
-	const validationResult = validateCoordinates(
+	const validationResult = logicUtils.validateCoordinates(
 		Number(latitude),
 		Number(longitude)
 	);
 	if (!validationResult.valid) {
-		console.log(`Invalid coordinates: ${validationResult.error}`);
+		logger.info(
+			{ inputs: { latitude, longitude } },
+			`Invalid coordinates: ${validationResult.error}`
+		);
 		throw redirect(302, '/');
 	}
 
 	if (!locationName) {
-		const reverseGeocodingResponse = await reverseGeocoding(
-			Number(latitude),
-			Number(longitude),
-			['postcode']
+		const [error, reverseGeocodingResponse] = await to(
+			mapbox.reverseGeocoding(Number(latitude), Number(longitude), ['postcode'])
 		);
+		if (error) {
+			logger.error({ error }, 'Error reverse geocoding');
+			throw redirect(
+				302,
+				`/?error=${encodeURIComponent('Error reverse geocoding.')}`
+			);
+		}
 		const {
 			features: [firstFeature]
 		} = reverseGeocodingResponse;
 		locationName = firstFeature?.properties.place_formatted;
 	}
 
-	const response = await weatherApi.forecast({
-		latitude: Number(latitude),
-		longitude: Number(longitude),
-		current: [
-			'temperature_2m',
-			'precipitation_probability',
-			'wind_speed_10m',
-			'weather_code',
-			'is_day'
-		],
-		hourly: [
-			'temperature_2m',
-			'precipitation_probability',
-			'weather_code',
-			'is_day'
-		],
-		temperature_unit: temperatureUnit
-	});
+	const [forecastError, forecast] = await to(
+		weather.forecast({
+			latitude: Number(latitude),
+			longitude: Number(longitude),
+			current: [
+				'temperature_2m',
+				'precipitation_probability',
+				'wind_speed_10m',
+				'weather_code',
+				'is_day'
+			],
+			hourly: [
+				'temperature_2m',
+				'precipitation_probability',
+				'weather_code',
+				'is_day'
+			],
+			temperature_unit: temperatureUnit
+		})
+	);
+
+	if (forecastError) {
+		logger.error({ error: forecastError }, 'Error getting forecast');
+		throw redirect(
+			302,
+			`/?error=${encodeURIComponent('Error getting forecast.')}`
+		);
+	}
 
 	// Cache for 1 minute
-	if (NO_CACHE !== 'true') {
+	if (!ENV.NO_CACHE) {
 		setHeaders({
 			'cache-control': 'max-age=60'
 		});
 	}
 
-	const hourlyData = rollupTimeData(response.hourly?.time ?? [], {
-		temperature_2m: response.hourly?.temperature_2m ?? [],
-		precipitation_probability: response.hourly?.precipitation_probability ?? [],
-		weather_code: response.hourly?.weather_code ?? [],
-		is_day: response.hourly?.is_day ?? []
+	const hourlyData = logicUtils.rollupTimeData(forecast.hourly?.time ?? [], {
+		temperature_2m: forecast.hourly?.temperature_2m ?? [],
+		precipitation_probability: forecast.hourly?.precipitation_probability ?? [],
+		weather_code: forecast.hourly?.weather_code ?? [],
+		is_day: forecast.hourly?.is_day ?? []
 	});
 
 	return {
 		forecast: {
-			current: response.current,
-			current_units: response.current_units,
+			current: forecast.current,
+			current_units: forecast.current_units,
 			hourly: hourlyData,
-			hourly_units: response.hourly_units
+			hourly_units: forecast.hourly_units
 		},
 		location: {
 			name: locationName

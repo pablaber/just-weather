@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "vite dev | pino-pretty",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -24,6 +24,7 @@
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.36.0",
 		"globals": "^15.0.0",
+		"pino-pretty": "^11.3.0",
 		"prettier": "^3.3.2",
 		"prettier-plugin-svelte": "^3.2.6",
 		"prettier-plugin-tailwindcss": "^0.6.5",
@@ -36,6 +37,10 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
-		"date-fns": "^4.1.0"
+		"await-to-js": "^3.0.0",
+		"date-fns": "^4.1.0",
+		"nanoid": "^5.0.8",
+		"pino": "^9.5.0",
+		"zod": "^3.23.8"
 	}
 }

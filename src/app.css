@@ -3,58 +3,56 @@
 @import 'tailwindcss/utilities';
 @import './icons/styles/weather-icons.min.css';
 
-
-
 @layer base {
-  h1 {
-    @apply text-4xl font-bold mb-4;
-  }
+	h1 {
+		@apply mb-4 text-4xl font-bold;
+	}
 
-  h2 {
-    @apply text-3xl font-bold mb-4;
-  }
+	h2 {
+		@apply mb-4 text-3xl font-bold;
+	}
 
-  h3 {
-    @apply text-2xl font-bold mb-4;
-  }
+	h3 {
+		@apply mb-4 text-2xl font-bold;
+	}
 
-  h4 {
-    @apply text-xl font-bold mb-4;
-  }
+	h4 {
+		@apply mb-4 text-xl font-bold;
+	}
 
-  h5 {
-    @apply text-lg font-bold mb-4;
-  }
+	h5 {
+		@apply mb-4 text-lg font-bold;
+	}
 
-  h6 {
-    @apply text-base font-bold mb-4;
-  }
+	h6 {
+		@apply mb-4 text-base font-bold;
+	}
 
-  .wi {
-    color: black;
-  }
+	.wi {
+		color: black;
+	}
 
-  .wi-sm {
-    font-size: 1rem;
-  }
+	.wi-sm {
+		font-size: 1rem;
+	}
 
-  .wi-md {
-    font-size: 1.5rem;
-  }
+	.wi-md {
+		font-size: 1.5rem;
+	}
 
-  .wi-lg {
-    font-size: 2rem;
-  }
+	.wi-lg {
+		font-size: 2rem;
+	}
 
-  .wi-xl {
-    font-size: 3rem;
-  }
+	.wi-xl {
+		font-size: 3rem;
+	}
 
-  .wi-2xl {
-    font-size: 4rem;
-  }
+	.wi-2xl {
+		font-size: 4rem;
+	}
 
-  .wi-3xl {
-    font-size: 6rem;
-  }
+	.wi-3xl {
+		font-size: 6rem;
+	}
 }

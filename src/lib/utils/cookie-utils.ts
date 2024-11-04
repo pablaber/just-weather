@@ -1,6 +1,6 @@
 import type { Cookies } from '@sveltejs/kit';
 import { hoursToSeconds, addYears } from 'date-fns';
-import type { TemperatureUnit } from './types';
+import type { TemperatureUnit } from '../types';
 
 const COOKIES = {
 	JAIL: 'jail',
