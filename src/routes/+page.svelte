@@ -70,8 +70,7 @@
 		out:fade={{ duration: FADE_DURATION }}
 		class="flex h-screen flex-col items-center justify-center"
 	>
-		<div class="mb-4 h-4">
-		</div>
+		<div class="mb-4 h-4"></div>
 		<h1>just weather</h1>
 		<HomePostcodeInput
 			bind:postcode
@@ -100,7 +99,7 @@
 	<div
 		in:fade={{ duration: FADE_DURATION, delay: FADE_DURATION }}
 		out:fade
-		class="flex h-screen w-screen flex-col items-center justify-center absolute"
+		class="absolute flex h-screen w-screen flex-col items-center justify-center"
 	>
 		<span class="animate-spin text-5xl opacity-30">{randomLoadingEmoji}</span>
 	</div>
