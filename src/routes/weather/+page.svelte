@@ -28,17 +28,17 @@
 
 <div in:fade={{ duration: 400 }} class="flex flex-col">
 	<!-- Back Button Top Left -->
-	<div class="p-4">
+	<div class="p-2 sm:p-4">
 		<button onclick={() => goto('/')}>
 			<span class="text-2xl">🔙</span>
 		</button>
 	</div>
 
 	<div class="flex flex-col items-center p-4">
-		<h5>{data.location.name}</h5>
-		<i class={`wi wi-2xl ${weatherCodeClass}`}></i>
+		<span class="mb-1 sm:mb-2">{data.location.name}</span>
+		<i class={`wi wi-xl sm:wi-2xl ${weatherCodeClass}`}></i>
 		<h1>{currentTemperatureRounded} {temperatureUnit}</h1>
-		<h4>{weatherCodeInfo.description}</h4>
+		<h4>{weatherCodeInfo.description.toLowerCase()}</h4>
 	</div>
 
 	<WeatherHourly
