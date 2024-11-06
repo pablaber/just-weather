@@ -1,24 +1,7 @@
-import pino from 'pino';
 import { customAlphabet } from 'nanoid';
 import { ENV } from '$lib/config';
+import { logger } from '$lib/utils/logger';
 
-let axiomTransport;
-if (ENV.AXIOM_TOKEN && ENV.AXIOM_DATASET) {
-	axiomTransport = pino.transport({
-		target: '@axiomhq/pino',
-		options: {
-			dataset: ENV.AXIOM_DATASET,
-			token: ENV.AXIOM_TOKEN
-		}
-	});
-}
-
-const logger = pino(
-	{
-		level: ENV.LOG_LEVEL
-	},
-	axiomTransport
-);
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 10);
 
 export async function handle({ event, resolve }) {
