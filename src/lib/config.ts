@@ -15,7 +15,9 @@ const envSchema = z.object({
 		.string()
 		.transform((val) => parseInt(val))
 		.default('100'),
-	LOG_LEVEL: z.enum(LOG_LEVELS).default('info')
+	LOG_LEVEL: z.enum(LOG_LEVELS).default('info'),
+	AXIOM_TOKEN: z.string().optional(),
+	AXIOM_DATASET: z.string().optional()
 });
 
 export const ENV = envSchema.parse(staticEnv);

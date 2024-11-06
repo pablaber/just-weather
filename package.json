@@ -37,6 +37,7 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
+		"@axiomhq/pino": "^1.2.0",
 		"await-to-js": "^3.0.0",
 		"date-fns": "^4.1.0",
 		"nanoid": "^5.0.8",
