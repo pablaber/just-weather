@@ -7,6 +7,10 @@ const COOKIES = {
 	TEMPERATURE_UNIT: 'temperature_unit'
 };
 
+const DEFAULT_COOKIE_VALUES = {
+	TEMPERATURE_UNIT: 'fahrenheit'
+};
+
 type AdditionalCookieOptions = {
 	maxAge?: number;
 	expires?: Date;
@@ -34,9 +38,11 @@ export function create(cookies: Cookies) {
 			return newCount;
 		},
 		getTemperatureUnit: () => {
-			const temperatureUnitRaw = cookies.get(COOKIES.TEMPERATURE_UNIT);
+			const temperatureUnitRaw =
+				cookies.get(COOKIES.TEMPERATURE_UNIT) ||
+				DEFAULT_COOKIE_VALUES.TEMPERATURE_UNIT;
 			const temperatureUnit: TemperatureUnit =
-				temperatureUnitRaw === 'fahrenheit' ? 'fahrenheit' : 'celsius';
+				temperatureUnitRaw === 'celsius' ? 'celsius' : 'fahrenheit';
 			return temperatureUnit;
 		},
 		setTemperatureUnit: (temperatureUnit: TemperatureUnit) => {

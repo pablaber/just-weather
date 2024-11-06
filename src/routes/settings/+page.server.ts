@@ -1,10 +1,10 @@
 import type { TemperatureUnit } from '$lib/types';
 import { addYears } from 'date-fns';
+import { cookieUtils } from '$lib/utils';
 
 export async function load({ cookies }) {
-	const temperatureUnitRaw = cookies.get('temperature_unit');
-	const temperatureUnit: TemperatureUnit =
-		temperatureUnitRaw === 'fahrenheit' ? 'fahrenheit' : 'celsius';
+	const cookieMonster = cookieUtils.create(cookies);
+	const temperatureUnit = cookieMonster.getTemperatureUnit();
 
 	return {
 		temperatureUnit
