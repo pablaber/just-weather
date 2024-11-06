@@ -13,10 +13,12 @@ if (ENV.AXIOM_TOKEN && ENV.AXIOM_DATASET) {
 	});
 }
 
-const logger = pino({
-	level: ENV.LOG_LEVEL,
-	transport: axiomTransport
-});
+const logger = pino(
+	{
+		level: ENV.LOG_LEVEL
+	},
+	axiomTransport
+);
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 10);
 
 export async function handle({ event, resolve }) {
