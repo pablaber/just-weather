@@ -1,6 +1,7 @@
 import { customAlphabet } from 'nanoid';
 import { ENV } from '$lib/config';
 import { logger } from '$lib/utils/logger';
+import { redirect } from '@sveltejs/kit';
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 10);
 
@@ -9,10 +10,10 @@ export async function handle({ event, resolve }) {
 		reqId: nanoid()
 	});
 	requestLogger.info({
+		type: 'app-request',
 		method: event.request.method,
 		path: event.url.pathname,
-		query: event.url.search,
-		message: 'request received'
+		query: event.url.search
 	});
 	event.locals.logger = requestLogger;
 	return resolve(event);
@@ -42,4 +43,31 @@ export async function handleFetch({ request, fetch, event }) {
 		'external http response'
 	);
 	return response;
+}
+
+/**
+ * Any unhandled error will go here.
+ */
+export async function handleError({ error, event, status }) {
+	const { logger } = event.locals;
+
+	let errorMessage = 'An unknown error occurred';
+	if (error instanceof Error) {
+		errorMessage = error.message;
+	} else if (typeof error === 'string') {
+		errorMessage = error;
+	} else if (error && typeof error === 'object' && 'message' in error) {
+		errorMessage = (error.message as string) || 'An unknown error occurred';
+	}
+
+	if (status === 404) {
+		logger.debug({ type: '404-redirect', status, errorMessage });
+		return redirect(302, '/');
+	}
+
+	logger.error({ type: 'unhandled-error', error: errorMessage, status });
+
+	return {
+		message: 'An unknown error occurred.'
+	};
 }
