@@ -130,10 +130,24 @@ export async function load({ url, cookies, setHeaders, locals, fetch }) {
 	);
 
 	if (forecastError) {
-		logger.error({ error: forecastError }, 'Error getting forecast');
+		const errorString = `${forecastError.name || 'Error'} ${
+			forecastError.message || '??'
+		}`;
+
+		logger.error(
+			{
+				error: {
+					name: forecastError.name,
+					message: forecastError.message,
+					cause: forecastError.cause
+				}
+			},
+			errorString
+		);
+
 		throw redirect(
 			302,
-			`/?error=${encodeURIComponent('Error getting forecast.')}`
+			`/?error=${encodeURIComponent(`Error getting forecast: ${errorString}`)}`
 		);
 	}
 
