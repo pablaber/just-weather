@@ -27,7 +27,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.location.short} Weather</title>
+	<title>{data.location.short.toLowerCase()} weather</title>
 </svelte:head>
 
 <div in:fade={{ duration: 400 }} class="flex flex-col">

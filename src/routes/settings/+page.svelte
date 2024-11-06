@@ -17,10 +17,14 @@
 	});
 </script>
 
+<svelte:head>
+	<title>settings</title>
+</svelte:head>
+
 <div class="flex flex-col items-center p-4">
 	<h1>Settings</h1>
 	<div class="flex items-center gap-2">
-		<span class="text-xl">Temperature unit:</span>
+		<span class="text-xl">temperature unit:</span>
 		<button
 			class="w-28 rounded bg-blue-500 py-1 text-white hover:bg-blue-600"
 			onclick={toggleTemperatureUnit}
