@@ -4,11 +4,19 @@ import { weatherApi, mapboxApi } from '$lib/api';
 import { redirect } from '@sveltejs/kit';
 import { ENV } from '$lib/config';
 
+type LocationDetails = {
+	name: string;
+	short: string;
+};
+
 export async function load({ url, cookies, setHeaders, locals, fetch }) {
 	const { logger } = locals;
 	let latitude = url.searchParams.get('lat');
 	let longitude = url.searchParams.get('lon');
-	let locationName = '';
+	const locationDetails: LocationDetails = {
+		name: '',
+		short: ''
+	};
 
 	const postcode = url.searchParams.get('postcode');
 
@@ -53,9 +61,14 @@ export async function load({ url, cookies, setHeaders, locals, fetch }) {
 			);
 		}
 
-		latitude = firstFeature.properties.coordinates.latitude.toString();
-		longitude = firstFeature.properties.coordinates.longitude.toString();
-		locationName = firstFeature.properties.place_formatted;
+		const featureProperties = firstFeature.properties;
+		latitude = featureProperties.coordinates.latitude.toString();
+		longitude = featureProperties.coordinates.longitude.toString();
+		locationDetails.name = featureProperties.place_formatted;
+
+		const ctx = featureProperties.context;
+		locationDetails.short =
+			ctx.place?.name || ctx.district?.name || featureProperties.name;
 	}
 
 	if (!latitude || !longitude) {
@@ -75,7 +88,7 @@ export async function load({ url, cookies, setHeaders, locals, fetch }) {
 		throw redirect(302, '/');
 	}
 
-	if (!locationName) {
+	if (!locationDetails.name) {
 		const [error, reverseGeocodingResponse] = await to(
 			mapbox.reverseGeocoding(Number(latitude), Number(longitude), ['postcode'])
 		);
@@ -89,7 +102,10 @@ export async function load({ url, cookies, setHeaders, locals, fetch }) {
 		const {
 			features: [firstFeature]
 		} = reverseGeocodingResponse;
-		locationName = firstFeature?.properties.place_formatted;
+		locationDetails.name = firstFeature?.properties.place_formatted;
+		const ctx = firstFeature?.properties.context;
+		locationDetails.short =
+			ctx.place?.name || ctx.district?.name || firstFeature?.properties.name;
 	}
 
 	const [forecastError, forecast] = await to(
@@ -142,8 +158,6 @@ export async function load({ url, cookies, setHeaders, locals, fetch }) {
 			hourly: hourlyData,
 			hourly_units: forecast.hourly_units
 		},
-		location: {
-			name: locationName
-		}
+		location: locationDetails
 	};
 }

@@ -1,5 +1,11 @@
 import { ENV } from '$lib/config';
 
+type FeatureBase = {
+	name: string;
+	mapbox_id: string;
+	wikidata_id: string;
+};
+
 /**
  * A feature returned from the Mapbox Geocoding API.
  * @see https://docs.mapbox.com/api/search/geocoding/#geocoding-response-object
@@ -16,6 +22,12 @@ type MapboxFeature = {
 		coordinates: {
 			latitude: number;
 			longitude: number;
+		};
+		context: {
+			place?: FeatureBase;
+			district?: FeatureBase;
+			region?: FeatureBase;
+			country?: FeatureBase;
 		};
 	};
 };

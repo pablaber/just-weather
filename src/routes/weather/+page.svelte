@@ -26,6 +26,10 @@
 	);
 </script>
 
+<svelte:head>
+	<title>{data.location.short} Weather</title>
+</svelte:head>
+
 <div in:fade={{ duration: 400 }} class="flex flex-col">
 	<!-- Back Button Top Left -->
 	<div class="p-2 sm:p-4">

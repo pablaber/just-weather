@@ -65,6 +65,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>just weather</title>
+</svelte:head>
+
 {#if !submitting}
 	<div
 		out:fade={{ duration: FADE_DURATION }}

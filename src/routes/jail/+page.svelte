@@ -2,6 +2,10 @@
 	import jail from '$lib/assets/you-in-jail.jpg';
 </script>
 
+<svelte:head>
+	<title>jail</title>
+</svelte:head>
+
 <div class="flex h-screen w-screen flex-col items-center justify-center px-4">
 	<div class="flex max-w-md flex-col items-center justify-center">
 		<div class="mb-4 overflow-hidden rounded-lg">
