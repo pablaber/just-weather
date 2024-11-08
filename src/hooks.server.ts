@@ -9,11 +9,13 @@ export async function handle({ event, resolve }) {
 	const requestLogger = logger.child({
 		reqId: nanoid()
 	});
+	const userAgent = event.request.headers.get('user-agent') || 'unknown';
 	requestLogger.info({
 		type: 'app-request',
 		method: event.request.method,
 		path: event.url.pathname,
-		query: event.url.search
+		query: event.url.search,
+		userAgent
 	});
 	event.locals.logger = requestLogger;
 	return resolve(event);
